@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian Praktik TIK - Kelas 1 SD</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Bubblegum Sans', Arial, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #74b9ff, #dfe6e9);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 680px;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        h1 {
+            color: #0984e3;
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #636e72;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .screen {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 15px;
+            font-size: 18px;
+            border: 3px solid #74b9ff;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            outline: none;
+        }
+        .btn {
+            background-color: #00b894;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 0 #00876c;
+            transition: 0.1s;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #00876c;
+        }
+        .badge-level {
+            display: inline-block;
+            padding: 5px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            color: white;
+        }
+        .level-mudah { background-color: #00b894; }
+        .level-sedang { background-color: #e1b12c; }
+        .level-sulit { background-color: #e84118; }
+
+        .question-box {
+            font-size: 20px;
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-weight: bold;
+            background: #f1f2f6;
+            padding: 18px;
+            border-radius: 15px;
+        }
+        .question-image-box {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            margin: 8px 0 14px 0;
+        }
+        .question-image-box.has-image {
+            display: flex;
+        }
+        .question-image-box img {
+            max-width: 100%;
+            max-height: 170px;
+            object-fit: contain;
+            border-radius: 14px;
+            border: 2px solid #dfe6e9;
+            background: #fafafa;
+            padding: 6px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .option-btn {
+            background: #dfe6e9;
+            border: 3px solid #b2bec3;
+            padding: 15px 10px;
+            font-size: 17px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2d3436;
+            transition: 0.2s;
+        }
+        .option-btn:hover {
+            background: #74b9ff;
+            color: white;
+            border-color: #0984e3;
+        }
+        .score-card {
+            font-size: 28px;
+            color: #d63031;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            color: #636e72;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- SCREEN 1: LOGIN SISWA -->
+    <div id="screen-login" class="screen active">
+        <h1>Ujian Praktik TIK</h1>
+        <p class="subtitle">SD Islam Al Azhar 33 Tasikmalaya<br>Bab: Jaringan Komputer & Kualitas Sinyal (30 Soal)</p>
+        <p>Ketik Nama Lengkap Ananda:</p>
+        <input type="text" id="studentName" placeholder="Nama Siswa..." autocomplete="off">
+        <br>
+        <button class="btn" onclick="startQuiz()">Mulai Ujian</button>
+    </div>
+
+    <!-- SCREEN 2: SOAL KUIS -->
+    <div id="screen-quiz" class="screen">
+        <div class="info-bar">
+            <span id="questionCounter">Soal: 1 / 30</span>
+            <span id="currentScoreDisplay">Skor: 0</span>
+        </div>
+        <div id="badgeContainer"><span class="badge-level level-mudah" id="levelBadge">Mudah</span></div>
+        <div class="question-image-box" id="questionImageBox"></div>
+        <div class="question-box" id="questionText">Pertanyaan muncul di sini</div>
+        <div class="options-grid" id="optionsContainer"></div>
+    </div>
+
+    <!-- SCREEN 3: SELESAI -->
+    <div id="screen-result" class="screen">
+        <h1>Hore, Selesai!</h1>
+        <p class="subtitle" id="resultName"></p>
+        <div class="score-card" id="finalScoreText">Skor Anda: 100</div>
+        <p>Silakan panggil Guru untuk mencatat nilai ya!</p>
+        <button class="btn" onclick="location.reload()">Ulangi / Siswa Lain</button>
+    </div>
+</div>
+
+<script>
+    // Isi path gambar pada properti `image` saat gambar sudah siap, misalnya: "img/router-wifi.jpg"
+    const quizData = [
+        // ================= KELOMPOK 1: LEVEL MUDAH (Soal 1 - 15) =================
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Jaringan komputer seluruh dunia disebut...",
+            options: ["Internet", "Televisi", "Radio", "Koran"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Ini adalah lambang jaringan...",
+            options: ["Wi-Fi", "Bluetooth", "Kabel", "Listrik"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Alat yang bisa dibawa & ada kuota internetnya:",
+            options: ["Smartphone / HP", "Kulkas", "Televisi", "Setrika"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Alat untuk belajar TIK di lab sekolah:",
+            options: ["Komputer / Laptop", "Kompor", "Mesin Cuci", "Kipas"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Alat pemancar sinyal Wi-Fi di ruangan:",
+            options: ["Router / Modem", "Lampu", "Jam", "Pintu"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Sinyal HP penuh 5 bar, artinya kondisi sinyal...",
+            options: ["Sangat Kuat", "Lemah", "Putus", "Mati"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Sinyal HP 4 batang, kondisi internet...",
+            options: ["Cukup Kuat", "Kosong", "Rusak", "Hilang"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Sinyal HP 3 batang di tengah, artinya...",
+            options: ["Sedang / Cukup", "Sangat Cepat", "Penuh", "Mati"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Sinyal HP tinggal 1 batang, internet jadi...",
+            options: ["Lemah / Lambat", "Sangat Cepat", "Lancar", "Hebat"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Sinyal HP 0 batang / tanda silang, artinya...",
+            options: ["Tidak Ada Sinyal", "Penuh", "Lancar", "Cepat"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Lengkungan Wi-Fi penuh, artinya sinyal...",
+            options: ["Sangat Kuat", "Lemah", "Putus", "Mati"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Lengkungan Wi-Fi 4 garis, kondisinya...",
+            options: ["Cukup Kuat", "Kosong", "Rusak", "Hilang"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Lengkungan Wi-Fi 3 garis, artinya...",
+            options: ["Sedang", "Sangat Cepat", "Penuh", "Mati"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Lengkungan Wi-Fi tinggal sedikit, internet...",
+            options: ["Lemah / Tersendat", "Sangat Cepat", "Lancar", "Hebat"],
+            answer: 0
+        },
+        {
+            level: "Mudah", levelClass: "level-mudah",
+            image: "",
+            question: "Wi-Fi ada tanda silang merah, artinya...",
+            options: ["Tidak Terhubung", "Penuh", "Lancar", "Cepat"],
+            answer: 0
+        },
+
+        // ================= KELOMPOK 2: LEVEL SEDANG (Soal 16 - 25) =================
+        {
+            level: "Sedang", levelClass: "level-sedang",
+            image: "",
+            question: "Belajar sambil browsing materi di lab komputer membutuhkan...",
+            options: ["Internet", "Kabel Mati", "Listrik Padam", "Layar Pecah"],
+            answer: 0
+        },
+        {
+            level: "Sedang", levelClass: "level-sedang",
+            image: "",
+            question: "Saat naik mobil di jalan raya, HP biasanya memakai jaringan...",
+            options: ["Data Seluler", "Wi-Fi Rumah", "Kabel LAN", "Bluetooth"],
+            answer: 0
+        },
+        {
+            level: "Sedang", levelClass: "level-sedang",
+            image: "",
+            question: "Di dalam rumah, agar internetan hemat kuota HP, kita pakai...",
+            options: ["Wi-Fi Rumah", "Paket Seluler", "Radio", "Televisi"],
+            answer: 0
+        },
+        {
+            level: "Sedang", levelClass: "level-sedang",
+            image: "",
+            question: "Sinyal HP tiba-tiba sisa 1 batang, video YouTube akan jadi...",
+            options: ["Macet-macet / Loading", "Sangat Cepat", "Mati Total", "Jernih Sekali"],
+            answer: 0
+        },
+        {
+            level: "Sedang", levelClass: "level-sedang",
+            image: "",
+            question: "Kenapa sinyal Wi-Fi bisa mengecil jika tertutup tembok tebal?",
+            options: ["Tembok menghalangi sinyal", "Wi-Fi kedinginan", "Router rusak", "Kabel dipotong"],
+            answer: 0
+        },
+        {
+            level: "Sedang", levelClass: "level-sedang",
+            image: "",
+            question: "Mengunduh game edukasi di tablet memerlukan...",
+            options: ["Koneksi Internet", "Air dan Sabun", "Kipas Angin", "Buku Tulis"],
+            answer: 0
+        },
+        {
+            level: "Sedang", levelClass: "level-sedang",
+            image: "",
+            question: "Jika lampu indikator router Wi-Fi mati total, artinya...",
+            options: ["Router belum dicolok / mati", "Internet sangat cepat", "Sinyal penuh", "HP rusak"],
+            answer: 0
+        },
+        {
+            level: "Sedang", levelClass: "level-sedang",
+            image: "",
+            question: "Di sekolah, jaringan internet lab komputer bersumber dari...",
+            options: ["Internet Sekolah / Router", "Sinyal Bulan", "Radio FM", "Televisi"],
+            answer: 0
+        },
+        {
+            level: "Sedang", levelClass: "level-sedang",
+            image: "",
+            question: "Saat hujan deras dan berpetir, kadang jaringan internet bisa...",
+            options: ["Terganggu / Lambat", "Makin Cepat", "Bertambah kuat", "Tidak ada perubahan"],
+            answer: 0
+        },
+        {
+            level: "Sedang", levelClass: "level-sedang",
+            image: "",
+            question: "Dua komputer di lab bisa saling berbagi data jika terhubung ke...",
+            options: ["Jaringan Komputer", "Kompor", "Kulkas", "Radio"],
+            answer: 0
+        },
+
+        // ================= KELOMPOK 3: LEVEL TANTANGAN (Soal 26 - 30) =================
+        {
+            level: "Tantangan", levelClass: "level-sulit",
+            image: "",
+            question: "Saat cuaca hujan deras, sinyal internet biasanya...",
+            options: ["Bisa terganggu / lambat", "Makin cepat sekali", "Jadi wangi", "Tidak berubah"],
+            answer: 0
+        },
+        {
+            level: "Tantangan", levelClass: "level-sulit",
+            image: "",
+            question: "Bermain HP di taman kota tanpa Wi-Fi, internetnya pakai...",
+            options: ["Data Seluler", "Kabel LAN", "Kulkas", "Kipas Angin"],
+            answer: 0
+        },
+        {
+            level: "Tantangan", levelClass: "level-sulit",
+            image: "",
+            question: "Agar router Wi-Fi bisa menyala, harus dihubungkan ke...",
+            options: ["Listrik / Stopkontak", "Air keran", "Kertas", "Buku tulis"],
+            answer: 0
+        },
+        {
+            level: "Tantangan", levelClass: "level-sulit",
+            image: "",
+            question: "Jika kuota data seluler habis, internet HP akan...",
+            options: ["Mati / Tidak bisa dipakai", "Makin ngebut", "Terbang", "Menyala terus"],
+            answer: 0
+        },
+        {
+            level: "Tantangan", levelClass: "level-sulit",
+            image: "",
+            question: "Sikap yang benar setelah selesai memakai komputer lab adalah...",
+            options: ["Dimatikan dengan benar", "Dibanting", "Disiram air", "Ditinggal kabur"],
+            answer: 0
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let correctAnswersCount = 0;
+    let studentName = "";
+
+    function startQuiz() {
+        const nameInput = document.getElementById("studentName").value.trim();
+        if (nameInput === "") {
+            alert("Tulis nama ananda dulu ya sebelum mulai!");
+            return;
+        }
+        studentName = nameInput;
+        document.getElementById("screen-login").classList.remove("active");
+        document.getElementById("screen-quiz").classList.add("active");
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentQuestionIndex >= quizData.length) {
+            showResult();
+            return;
+        }
+
+        const q = quizData[currentQuestionIndex];
+
+        document.getElementById("questionCounter").innerText = `Soal: ${currentQuestionIndex + 1} / ${quizData.length}`;
+        document.getElementById("currentScoreDisplay").innerText = `Skor: ${Math.round((correctAnswersCount / quizData.length) * 100)}`;
+
+        const badge = document.getElementById("levelBadge");
+        badge.innerText = `Level: ${q.level}`;
+        badge.className = `badge-level ${q.levelClass}`;
+
+        const imageBox = document.getElementById("questionImageBox");
+        imageBox.innerHTML = "";
+        imageBox.classList.remove("has-image");
+
+        if (q.image && q.image.trim() !== "") {
+            const img = document.createElement("img");
+            img.src = q.image;
+            img.alt = q.question;
+            img.onload = () => {
+                imageBox.classList.add("has-image");
+            };
+            img.onerror = () => {
+                imageBox.classList.remove("has-image");
+                imageBox.innerHTML = "";
+            };
+            imageBox.appendChild(img);
+        }
+
+        document.getElementById("questionText").innerText = q.question;
+
+        const optionsContainer = document.getElementById("optionsContainer");
+        optionsContainer.innerHTML = "";
+
+        q.options.forEach((opt, index) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(index, q.answer);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIndex, correctIndex) {
+        if (selectedIndex === correctIndex) {
+            correctAnswersCount++;
+        }
+        currentQuestionIndex++;
+        loadQuestion();
+    }
+
+    function showResult() {
+        document.getElementById("screen-quiz").classList.remove("active");
+        document.getElementById("screen-result").classList.add("active");
+
+        const finalScore = Math.round((correctAnswersCount / quizData.length) * 100);
+
+        document.getElementById("resultName").innerText = `Nama Siswa: ${studentName}`;
+        document.getElementById("finalScoreText").innerText = `Nilai Akhir Ananda: ${finalScore}`;
+    }
+</script>
+
+</body>
+</html>
