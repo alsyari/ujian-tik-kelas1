@@ -21,10 +21,10 @@
         .container {
             background: white;
             width: 100%;
-            max-width: 680px;
+            max-width: 720px;
             padding: 30px;
             border-radius: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
         h1 {
@@ -36,6 +36,7 @@
             color: #636e72;
             font-size: 16px;
             margin-bottom: 20px;
+            line-height: 1.5;
         }
         .screen {
             display: none;
@@ -45,6 +46,7 @@
         }
         input[type="text"] {
             width: 80%;
+            max-width: 440px;
             padding: 15px;
             font-size: 18px;
             border: 3px solid #74b9ff;
@@ -53,12 +55,15 @@
             text-align: center;
             outline: none;
         }
+        input[type="text"]:focus {
+            border-color: #0984e3;
+        }
         .btn {
             background-color: #00b894;
             color: white;
             border: none;
-            padding: 15px 35px;
-            font-size: 20px;
+            padding: 14px 32px;
+            font-size: 19px;
             border-radius: 15px;
             cursor: pointer;
             font-weight: bold;
@@ -69,9 +74,18 @@
             transform: translateY(4px);
             box-shadow: 0 1px 0 #00876c;
         }
+        .btn-secondary {
+            background-color: #0984e3;
+            box-shadow: 0 5px 0 #0652dd;
+            font-size: 15px;
+            padding: 10px 18px;
+        }
+        .btn-secondary:active {
+            box-shadow: 0 1px 0 #0652dd;
+        }
         .badge-level {
             display: inline-block;
-            padding: 5px 12px;
+            padding: 5px 14px;
             font-size: 14px;
             font-weight: bold;
             border-radius: 10px;
@@ -82,15 +96,6 @@
         .level-sedang { background-color: #e1b12c; }
         .level-sulit { background-color: #e84118; }
 
-        .question-box {
-            font-size: 20px;
-            color: #2d3436;
-            margin-bottom: 20px;
-            font-weight: bold;
-            background: #f1f2f6;
-            padding: 18px;
-            border-radius: 15px;
-        }
         .question-image-box {
             display: none;
             justify-content: center;
@@ -102,12 +107,22 @@
         }
         .question-image-box img {
             max-width: 100%;
-            max-height: 170px;
+            max-height: 190px;
             object-fit: contain;
             border-radius: 14px;
             border: 2px solid #dfe6e9;
             background: #fafafa;
             padding: 6px;
+        }
+        .question-box {
+            font-size: 20px;
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-weight: bold;
+            background: #f1f2f6;
+            padding: 18px;
+            border-radius: 15px;
+            line-height: 1.4;
         }
         .options-grid {
             display: grid;
@@ -115,10 +130,15 @@
             gap: 15px;
             margin-bottom: 20px;
         }
+        @media (max-width: 520px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         .option-btn {
             background: #dfe6e9;
             border: 3px solid #b2bec3;
-            padding: 15px 10px;
+            padding: 15px 12px;
             font-size: 17px;
             border-radius: 15px;
             cursor: pointer;
@@ -135,7 +155,12 @@
             font-size: 28px;
             color: #d63031;
             font-weight: bold;
-            margin: 20px 0;
+            margin: 14px 0;
+        }
+        .detail-score {
+            color: #2d3436;
+            font-size: 16px;
+            margin-bottom: 20px;
         }
         .info-bar {
             display: flex;
@@ -145,6 +170,39 @@
             margin-bottom: 15px;
             font-size: 16px;
         }
+        .rekap-box {
+            margin-top: 24px;
+            text-align: left;
+            border-top: 2px dashed #dfe6e9;
+            padding-top: 16px;
+        }
+        .rekap-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .rekap-header h3 {
+            margin: 0;
+            color: #2d3436;
+            font-size: 17px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #dfe6e9;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f2f6;
+            color: #2d3436;
+        }
     </style>
 </head>
 <body>
@@ -153,11 +211,22 @@
     <!-- SCREEN 1: LOGIN SISWA -->
     <div id="screen-login" class="screen active">
         <h1>Ujian Praktik TIK</h1>
-        <p class="subtitle">SD Islam Al Azhar 33 Tasikmalaya<br>Bab: Jaringan Komputer & Kualitas Sinyal (30 Soal)</p>
+        <p class="subtitle">
+            SD Islam Al Azhar 33 Tasikmalaya<br>
+            Bab: Jaringan Komputer & Kualitas Sinyal (30 Soal)
+        </p>
         <p>Ketik Nama Lengkap Ananda:</p>
         <input type="text" id="studentName" placeholder="Nama Siswa..." autocomplete="off">
         <br>
         <button class="btn" onclick="startQuiz()">Mulai Ujian</button>
+
+        <div class="rekap-box" id="loginRekapBox" style="display: none;">
+            <div class="rekap-header">
+                <h3>Catatan Nilai Sementara (Perangkat Ini)</h3>
+                <button class="btn btn-secondary" onclick="copyRekap()">Salin Nilai</button>
+            </div>
+            <div id="rekapTableContainer"></div>
+        </div>
     </div>
 
     <!-- SCREEN 2: SOAL KUIS -->
@@ -166,7 +235,9 @@
             <span id="questionCounter">Soal: 1 / 30</span>
             <span id="currentScoreDisplay">Skor: 0</span>
         </div>
-        <div id="badgeContainer"><span class="badge-level level-mudah" id="levelBadge">Mudah</span></div>
+        <div id="badgeContainer">
+            <span class="badge-level level-mudah" id="levelBadge">Mudah</span>
+        </div>
         <div class="question-image-box" id="questionImageBox"></div>
         <div class="question-box" id="questionText">Pertanyaan muncul di sini</div>
         <div class="options-grid" id="optionsContainer"></div>
@@ -176,14 +247,15 @@
     <div id="screen-result" class="screen">
         <h1>Hore, Selesai!</h1>
         <p class="subtitle" id="resultName"></p>
-        <div class="score-card" id="finalScoreText">Skor Anda: 100</div>
+        <div class="score-card" id="finalScoreText">Nilai Akhir Ananda: 0</div>
+        <p class="detail-score" id="detailScoreText"></p>
         <p>Silakan panggil Guru untuk mencatat nilai ya!</p>
-        <button class="btn" onclick="location.reload()">Ulangi / Siswa Lain</button>
+        <button class="btn" onclick="resetForNextStudent()">Ulangi / Siswa Lain</button>
     </div>
 </div>
 
 <script>
-    // Isi path gambar pada properti `image` saat gambar sudah siap, misalnya: "img/router-wifi.jpg"
+    // Isi path gambar pada properti `image`, contoh: "img/router-wifi.jpg"
     const quizData = [
         // ================= KELOMPOK 1: LEVEL MUDAH (Soal 1 - 15) =================
         {
@@ -402,6 +474,7 @@
         }
     ];
 
+    const STORAGE_KEY = "rekap_ujian_tik_kelas1_sd";
     let currentQuestionIndex = 0;
     let correctAnswersCount = 0;
     let studentName = "";
@@ -413,7 +486,11 @@
             return;
         }
         studentName = nameInput;
+        currentQuestionIndex = 0;
+        correctAnswersCount = 0;
+
         document.getElementById("screen-login").classList.remove("active");
+        document.getElementById("screen-result").classList.remove("active");
         document.getElementById("screen-quiz").classList.add("active");
         loadQuestion();
     }
@@ -473,15 +550,81 @@
         loadQuestion();
     }
 
+    function saveScoreToLocal(name, correct, total, finalScore) {
+        const currentList = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        currentList.push({
+            nama: name,
+            benar: correct,
+            total: total,
+            nilai: finalScore
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(currentList));
+    }
+
+    function renderRekap() {
+        const list = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        const box = document.getElementById("loginRekapBox");
+        const container = document.getElementById("rekapTableContainer");
+
+        if (list.length === 0) {
+            box.style.display = "none";
+            return;
+        }
+
+        box.style.display = "block";
+        let rows = list.map((item, idx) => `
+            <tr>
+                <td>${idx + 1}</td>
+                <td>${item.nama}</td>
+                <td>${item.benar}/${item.total}</td>
+                <td><strong>${item.nilai}</strong></td>
+            </tr>
+        `).join("");
+
+        container.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Siswa</th>
+                        <th>Benar</th>
+                        <th>Nilai</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+    }
+
+    function copyRekap() {
+        const list = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        if (list.length === 0) return;
+        const text = list.map((item, idx) => `${idx + 1}. ${item.nama} - Nilai: ${item.nilai} (${item.benar}/${item.total})`).join("\n");
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Daftar nilai berhasil disalin!");
+        });
+    }
+
     function showResult() {
         document.getElementById("screen-quiz").classList.remove("active");
         document.getElementById("screen-result").classList.add("active");
 
         const finalScore = Math.round((correctAnswersCount / quizData.length) * 100);
+        saveScoreToLocal(studentName, correctAnswersCount, quizData.length, finalScore);
 
         document.getElementById("resultName").innerText = `Nama Siswa: ${studentName}`;
         document.getElementById("finalScoreText").innerText = `Nilai Akhir Ananda: ${finalScore}`;
+        document.getElementById("detailScoreText").innerText = `Jawaban Benar: ${correctAnswersCount} dari ${quizData.length} soal`;
     }
+
+    function resetForNextStudent() {
+        document.getElementById("studentName").value = "";
+        document.getElementById("screen-result").classList.remove("active");
+        document.getElementById("screen-login").classList.add("active");
+        renderRekap();
+    }
+
+    renderRekap();
 </script>
 
 </body>
